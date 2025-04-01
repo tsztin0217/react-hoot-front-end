@@ -1,25 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import CommentForm from '../CommentForm/CommentForm';
 import * as hootService from '../../services/hootService';
 // import { show } from '../../services/hootService'; // best way to import
-import { useParams } from 'react-router';
-import CommentForm from '../CommentForm/CommentForm';
-
+import { UserContext } from '../../contexts/UserContext';
+import { useParams, Link } from 'react-router';
 
 const HootDetails = (props) => {
     const [hoot, setHoot] = useState(null);
     const { hootId } = useParams();
+    const { user } = useContext(UserContext);
 
-    // src/components/HootDetails/HootDetails.jsx
-
-    // src/components/HootDetails/HootDetails.jsx
-
-  const handleAddComment = async (commentFormData) => {
-    const newComment = await hootService.createComment(hootId, commentFormData);
-    setHoot({ ...hoot, comments: [...hoot.comments, newComment] });
-  };
-
-
-
+    const handleAddComment = async (commentFormData) => {
+        const newComment = await hootService.createComment(
+            hootId, 
+            commentFormData
+        );
+        
+        setHoot({
+            ...hoot, 
+            comments: [...hoot.comments, newComment]
+        });
+    };
+    
     useEffect(() => {
         const fetchHoot = async () => {
             const hootData = await hootService.show(hootId);
@@ -29,8 +31,8 @@ const HootDetails = (props) => {
         // the effect function runs when we have a hootId
 
     }, [hootId]);
-    if (!hoot) return <main>Loading...</main>
-    // console.log('hoot state: ', hoot)
+
+    if(!hoot) return <main>Loading ... </main> // show loading while hoot is getting requested
 
     return (
         <main>
@@ -42,36 +44,41 @@ const HootDetails = (props) => {
                         {`${hoot.author.username} posted on 
                           ${new Date(hoot.createdAt).toLocaleDateString()}`}
                     </p>
+                    {
+                        hoot.author._id === user._id && (
+                            <>
+                                <Link to={`/hoots/${hootId}/edit`}>Edit</Link>
+                                <button 
+                                    onClick={() => props.handleDeleteHoot(hootId)}>
+                                        Delete
+                                </button>
+                            </>
+                        )
+                    }
                 </header>
                 <p>{hoot.text}</p>
             </section>
-
-
-
-            // src/components/HootDetails/HootDetails.jsx
-
             <section>
                 <h2>Comments</h2>
-                {/* Pass the handleAddComment function to the CommentForm Component */}
-                <CommentForm handleAddComment={handleAddComment} />
+                
+                <CommentForm 
+                    handleAddComment={handleAddComment} 
+                />
 
-                {!hoot.comments.length && <p>There are no comments.</p>}
-
+                {!hoot.comments.length && <p>There are no comments</p>}
                 {hoot.comments.map((comment) => (
                     <article key={comment._id}>
                         <header>
                             <p>
                                 {`${comment.author.username} posted on
-                ${new Date(comment.createdAt).toLocaleDateString()}`}
+                                    ${new Date(comment.createdAt).toLocaleDateString()}
+                                `}
                             </p>
                         </header>
                         <p>{comment.text}</p>
                     </article>
                 ))}
             </section>
-
-
-
         </main>
     );
 };
