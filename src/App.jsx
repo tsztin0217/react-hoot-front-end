@@ -6,6 +6,7 @@ import SignUpForm from './components/SignUpForm/SignUpForm';
 import SignInForm from './components/SignInForm/SignInForm';
 import Landing from './components/Landing/Landing';
 import Dashboard from './components/Dashboard/Dashboard';
+import HootList from './components/HootList/HootList';
 
 import { UserContext } from './contexts/UserContext';
 
@@ -17,6 +18,16 @@ const App = () => {
       <NavBar/>
       <Routes>
         <Route path='/' element={user ? <Dashboard /> : <Landing />} />
+        {
+          user ? (
+            <Route ppath="/hoots" element={<HootList />} />
+          ) : (
+            <>
+              <Route path='/sign-up' element={<SignUpForm />} />
+              <Route path='/sign-in' element={<SignInForm />} />
+            </>
+          )
+        }
         <Route path='/sign-up' element={<SignUpForm />} />
         <Route path='/sign-in' element={<SignInForm />} />
       </Routes>
